@@ -16,23 +16,7 @@
 Scheduler userScheduler; // to control your personal task
 painlessMesh  mesh;
 LightControl lightControl;
-
-String blinkCommand = "light_blink";
-String onCommand = "light_on";
-String offCommand = "light_off";
-
-// User stub
-void sendMessage() ; // Prototype so PlatformIO doesn't complain
-
-Task taskSendMessage( TASK_SECOND * 1 , TASK_FOREVER, &sendMessage );
-
-void sendMessage() {
-  // String msg = "Hello from node ";
-  // msg += mesh.getNodeId();
-  // mesh.sendBroadcast( msg );
-  // taskSendMessage.setInterval( random( TASK_SECOND * 1, TASK_SECOND * 5 ));
-}
-
+long timed = 0;
 // Needed for painless library
 void receivedCallback( uint32_t from, String &msg ) {
   Serial.printf("Message received from %u msg=%s\n", from, msg.c_str());
@@ -87,20 +71,24 @@ void setup() {
   Serial.begin(115200);
   lightControl.init();
 
-//mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
+// mesh.setDebugMsgTypes( ERROR | MESH_STATUS | CONNECTION | SYNC | COMMUNICATION | GENERAL | MSG_TYPES | REMOTE ); // all types on
   mesh.setDebugMsgTypes( ERROR | STARTUP );  // set before init() so that you can see startup messages
 
   mesh.init( MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT );
   mesh.onReceive(&receivedCallback);
   mesh.onNewConnection(&newConnectionCallback);
   mesh.setContainsRoot(true);
-
-  userScheduler.addTask( taskSendMessage );
-  taskSendMessage.enable();
+  // lightControl.setMode(RAINBOW);
 }
 
 void loop() {
   // it will run the user scheduler as well
   mesh.update();
   lightControl.step();
+  if (millis()-timed > 10000) {
+    timed = millis();
+    Serial.println(ESP.getFreeHeap());
+    Serial.println(ESP.getVcc());
+    Serial.println("----------");
+  }
 }

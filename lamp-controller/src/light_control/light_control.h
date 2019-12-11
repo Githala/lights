@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 #include "light_mode.h"
 
 #define ON_SIGNAL 0x0
@@ -11,7 +11,7 @@ class LightControl {
     LightMode mode;
     boolean lightOn=false;
 
-    int firstPixelHue = 0;
+    int firstPixelHSV = 0;
 
     int red = 0, green = 0, blue = 0;
 
